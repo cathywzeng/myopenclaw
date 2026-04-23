@@ -825,6 +825,7 @@
   width: min(100%, 920px);
   max-width: 100%;
   min-width: 0;
+  flex-shrink: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -837,6 +838,7 @@
 }
 
 .dreams-diary__day-chip {
+  flex-shrink: 0;
   padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
