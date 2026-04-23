@@ -12,6 +12,36 @@ export function renderSideResult(
   if (!sideResult) {
     return nothing;
   }
+
+  if (sideResult.kind === "compaction") {
+    return html`
+      <div
+        class="chat-compaction-notice"
+        role="status"
+        aria-live="polite"
+        aria-label="Compaction notice"
+      >
+        <span class="chat-compaction-notice__icon">${icons.loader}</span>
+        <span class="chat-compaction-notice__text">${sideResult.text}</span>
+      </div>
+    `;
+  }
+
+  if (sideResult.kind === "restart") {
+    return html`
+      <div
+        class="chat-compaction-notice"
+        role="status"
+        aria-live="polite"
+        aria-label="Gateway restart notice"
+      >
+        <span class="chat-compaction-notice__icon">${icons.check}</span>
+        <span class="chat-compaction-notice__text">${sideResult.text}</span>
+      </div>
+    `;
+  }
+
+  // btw kind
   return html`
     <section
       class=${`chat-side-result ${sideResult.isError ? "chat-side-result--error" : ""}`}

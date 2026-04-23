@@ -68,7 +68,28 @@ async function deliverRestartSentinelNotice(params: {
   replyToId?: string;
   threadId?: string;
   session: ReturnType<typeof buildOutboundSessionContext>;
+  broadcast?: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void;
 }) {
+  // Use broadcast (chat.side_result) when available — this is the same mechanism
+  // used for compaction notices and delivers a visible UI toast to the user.
+  // Fall back to legacy direct delivery only when broadcast is not wired in.
+  if (params.broadcast) {
+    const runId = `restart-sentinel-${Date.now()}`;
+    const seq = Date.now();
+    const sideResultPayload = {
+      kind: "restart" as const,
+      runId,
+      sessionKey: params.sessionKey,
+      text: params.message,
+      ts: Date.now(),
+    };
+    // Broadcast to all connected clients so the UI can show a toast.
+    params.broadcast("chat.side_result", sideResultPayload);
+    // Also send directly to the originating session for routed channels.
+    params.broadcast("chat.side_result", { ...sideResultPayload, seq });
+    return;
+  }
+
   const payloads = [{ text: params.message }];
   // Persist one recoverable notice across the whole retry loop so a transient
   // failure does not leave behind a stale duplicate queue entry.
@@ -126,7 +147,7 @@ async function deliverRestartSentinelNotice(params: {
   }
 }
 
-export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
+export async function scheduleRestartSentinelWake(params: { deps: CliDeps; broadcast?: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void }) {
   const sentinel = await consumeRestartSentinel();
   if (!sentinel) {
     return;
@@ -225,6 +246,7 @@ export async function scheduleRestartSentinelWake(params: { deps: CliDeps }) {
     replyToId,
     threadId: resolvedThreadId,
     session: outboundSession,
+    broadcast: params.broadcast,
   });
 }
 

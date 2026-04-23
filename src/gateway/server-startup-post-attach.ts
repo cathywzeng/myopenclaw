@@ -313,7 +313,7 @@ export async function startGatewaySidecars(params: {
     setTimeout(() => {
       void import("./server-restart-sentinel.js")
         .then(({ scheduleRestartSentinelWake }) =>
-          scheduleRestartSentinelWake({ deps: params.deps }),
+          scheduleRestartSentinelWake({ deps: params.deps, broadcast: params.broadcast }),
         )
         .catch((err) => {
           params.log.warn(`restart sentinel wake failed to schedule: ${String(err)}`);

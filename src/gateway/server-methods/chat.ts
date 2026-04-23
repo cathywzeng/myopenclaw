@@ -210,15 +210,23 @@ type ChatSendExplicitOrigin = {
   messageThreadId?: string;
 };
 
-type SideResultPayload = {
-  kind: "btw";
-  runId: string;
-  sessionKey: string;
-  question: string;
-  text: string;
-  isError?: boolean;
-  ts: number;
-};
+type SideResultPayload =
+  | {
+      kind: "btw";
+      runId: string;
+      sessionKey: string;
+      question: string;
+      text: string;
+      isError?: boolean;
+      ts: number;
+    }
+  | {
+      kind: "compaction";
+      runId: string;
+      sessionKey: string;
+      text: string;
+      ts: number;
+    };
 
 function buildTranscriptReplyText(payloads: ReplyPayload[]): string {
   const chunks = payloads
@@ -2231,6 +2239,27 @@ export const chatHandlers: GatewayRequestHandlers = {
                 sessionKey,
               });
             } else {
+              // Broadcast compaction notices (they are block replies stored in
+              // deliveredReplies but dropped from the transcript text, so we must
+              // deliver them separately so the UI can show them to the user).
+              const compactionNotices = deliveredReplies.filter(
+                (entry) => entry.payload.isCompactionNotice === true,
+              );
+              for (const entry of compactionNotices) {
+                const text = entry.payload.text?.trim();
+                if (text) {
+                  broadcastSideResult({
+                    context,
+                    payload: {
+                      kind: "compaction",
+                      runId: clientRunId,
+                      sessionKey,
+                      text,
+                      ts: Date.now(),
+                    },
+                  });
+                }
+              }
               const combinedReply = buildTranscriptReplyText(
                 deliveredReplies
                   .filter((entry) => entry.kind === "final")

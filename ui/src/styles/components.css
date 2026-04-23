@@ -1539,6 +1539,35 @@
 }
 
 /* ===========================================
+   Compaction Notices
+   =========================================== */
+
+.chat-compaction-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: var(--secondary);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  animation: fade-in 0.2s var(--ease-out);
+}
+
+.chat-compaction-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.chat-compaction-notice__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ===========================================
    Code Blocks
    =========================================== */
 
