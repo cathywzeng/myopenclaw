@@ -1166,10 +1166,11 @@ function renderMemoryPalaceSection(props: DreamingProps) {
           : nothing}
       </div>
       <div class="dreams-diary__prose">
-        <p class="dreams-diary__para">
-          Compiled wiki pages currently grouped under ${cluster.label.toLowerCase()}.
-          ${cluster.updatedAt ? ` Latest update ${formatCompactDateTime(cluster.updatedAt)}.` : ""}
-        </p>
+        ${cluster.updatedAt
+          ? html`<p class="dreams-diary__para">
+              Latest update ${formatCompactDateTime(cluster.updatedAt)}.
+            </p>`
+          : nothing}
       </div>
       <div class="dreams-diary__insights">
         ${cluster.items.map((item) => {
